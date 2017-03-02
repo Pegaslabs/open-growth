@@ -1,4 +1,4 @@
-opengrowth.signals.day7 = ( request, customer ) => {
+opengrowth.signals.upgrade_free = ( request, customer ) => {
     const user = request.message;
     const csm  = user.csm || {};
     const csm_bccs = csm && csm.bccs ? csm.bccs : [];
@@ -19,21 +19,20 @@ opengrowth.signals.day7 = ( request, customer ) => {
       , "csm_last_name"       : csm.last_name
       , "csm_email"           : csm.email
       , "csm_phone"           : csm.phone
-      , "csm_bccs"            : csm_bccs
+      , "csm_sf_bcc"          : csm_bccs
       , "app_name"            : user.app_name
     };
 
     var sendWithUsPostBody = {
-      "template": opengrowth.keys.swu.templates.day7,
+      "template": opengrowth.keys.swu.templates.upgrade_free,
       "recipient": {
         "name": firstName,
         "address": email
       },
       "template_data": template_data,
       "bcc": csm_bccs,
-      "tags" : [ "day7" ]
+      "tags" : [ "upgrade_free" ]
     };
 
-    // Send Email and Track Delight in Librato
     opengrowth.delight.sendwithus.email(sendWithUsPostBody);
 };

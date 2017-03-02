@@ -1,10 +1,10 @@
-opengrowth.signals.day7 = ( request, customer ) => {
+opengrowth.signals.realtime_analytics = ( request, customer ) => {
     const user = request.message;
     const csm  = user.csm || {};
     const csm_bccs = csm && csm.bccs ? csm.bccs : [];
     let email  = user.litmus || 'open-growth-activity+testing@pubnub.com';
     // @if GOLD
-    email = user.email;
+    //email = user.email;
     // @endif
 
     let firstName    = opengrowth.customer.getFirstName(customer);
@@ -19,19 +19,19 @@ opengrowth.signals.day7 = ( request, customer ) => {
       , "csm_last_name"       : csm.last_name
       , "csm_email"           : csm.email
       , "csm_phone"           : csm.phone
-      , "csm_bccs"            : csm_bccs
+      , "csm_sf_bcc"          : csm_bccs
       , "app_name"            : user.app_name
     };
 
     var sendWithUsPostBody = {
-      "template": opengrowth.keys.swu.templates.day7,
+      "template": opengrowth.keys.swu.templates.enable_rta,
       "recipient": {
         "name": firstName,
         "address": email
       },
       "template_data": template_data,
       "bcc": csm_bccs,
-      "tags" : [ "day7" ]
+      "tags" : [ "enable_rta" ]
     };
 
     // Send Email and Track Delight in Librato

@@ -1,11 +1,21 @@
-opengrowth.signals.day7 = ( request, customer ) => {
+opengrowth.signals.block3day = ( request, customer ) => {
     const user = request.message;
     const csm  = user.csm || {};
     const csm_bccs = csm && csm.bccs ? csm.bccs : [];
     let email  = user.litmus || 'open-growth-activity+testing@pubnub.com';
     // @if GOLD
-    email = user.email;
+    //email = user.email;
     // @endif
+
+    let blocks_name_array = [];
+    let blocks_url_array = [];
+    for ( let block of request.message.blocks ) {
+        blocks_name_array.push(`${block.block_name}`);
+        blocks_url_array.push(`https://admin.pubnub.com/#/user/` +
+          `${block.user_id}/account/${block.account_id}/app/${block.app_id}` +
+          `/key/${block.app_key_id}/block/${block.block_id}/event_handlers` +
+          `?link=block`);
+    }
 
     let firstName    = opengrowth.customer.getFirstName(customer);
     let lastName     = opengrowth.customer.getLastName(customer);
@@ -19,19 +29,20 @@ opengrowth.signals.day7 = ( request, customer ) => {
       , "csm_last_name"       : csm.last_name
       , "csm_email"           : csm.email
       , "csm_phone"           : csm.phone
-      , "csm_bccs"            : csm_bccs
       , "app_name"            : user.app_name
+      , "blocks_name_array"   : blocks_name_array //blocks expiring only
+      , "blocks_url_array"    : blocks_url_array  //blocks expiring only
     };
 
     var sendWithUsPostBody = {
-      "template": opengrowth.keys.swu.templates.day7,
+      "template": opengrowth.keys.swu.templates.block3day,
       "recipient": {
         "name": firstName,
         "address": email
       },
       "template_data": template_data,
       "bcc": csm_bccs,
-      "tags" : [ "day7" ]
+      "tags" : [ "block3day" ]
     };
 
     // Send Email and Track Delight in Librato
