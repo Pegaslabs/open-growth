@@ -1,4 +1,4 @@
-opengrowth.signals.signup = ( request, customer ) => {
+opengrowth.signals.history = ( request, customer ) => {
     const user = request.message;
     const csm  = user.csm || {};
     const csm_bccs = csm && csm.bccs ? csm.bccs : [];
@@ -11,11 +11,6 @@ opengrowth.signals.signup = ( request, customer ) => {
     let lastName     = opengrowth.customer.getLastName(customer);
     let company_name = opengrowth.customer.getCompany(customer);
 
-    let display_url = `https://admin.pubnub.com/#/user/${user.user_id}/` +
-                      `account/${user.account_id}/` +
-                      `app/${user.app_id}/key/${user.key_id}/`;
-    let anchor_url  = display_url;
-
     var template_data = {
         "customer_first_name" : firstName
       , "customer_last_name"  : lastName
@@ -24,20 +19,19 @@ opengrowth.signals.signup = ( request, customer ) => {
       , "csm_last_name"       : csm.last_name
       , "csm_email"           : csm.email
       , "csm_phone"           : csm.phone
-      , "csm_bccs"            : csm_bccs
-      , "display_url"         : display_url //signup
-      , "anchor_url"          : anchor_url  //signup
+      , "csm_sf_bcc"          : csm_bccs
+      , "app_name"            : user.app_name
     };
 
     var sendWithUsPostBody = {
-      "template": opengrowth.keys.swu.templates.signup,
+      "template": opengrowth.keys.swu.templates.enable_history,
       "recipient": {
         "name": firstName,
         "address": email
       },
       "template_data": template_data,
       "bcc": csm_bccs,
-      "tags" : [ "og_signup" ]
+      "tags" : [ "og_enable_history" ]
     };
 
     // Send Email and Track Delight in Librato

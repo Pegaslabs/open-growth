@@ -7,7 +7,7 @@ opengrowth.delight.sendgrid.email = ( request ) => {
     opengrowth.track.delight( 'sendgrid.email', request.signal, {
       "email"    : request.email
     , "subject"  : request.subject
-    , "message"  : request.message || "SG Template"
+    , "message"  : request.message || "SendGrid"
     , "bccs"     : request.bccs
     , "category" : request.categories[0]
     } );
@@ -31,26 +31,19 @@ opengrowth.delight.sendgrid.email = ( request ) => {
     , "personalizations"  : [ {
             "to" : [ { "email" : request.email, "name" : request.name } ]
         ,   "substitutions" : request.substitutions
+        ,   "personalizations" : request.bccs
         } ]
     };
-
-    //add BCCs for SalesForce
-    if ( request.bccs && request.bccs.length && request.bccs.length !== 0 ) {
-        data.personalizations[0].bcc = request.bccs;
-        data.personalizations[0].bcc.push({"email": "open-growth-activity@pubnub.com"});
-        data.personalizations[0].bcc.push({"email": "emailtosalesforce@z0trcplsmwbjcm4gbvne2c1ufoaqx9h0vijs8ai21c5d7sqn1.d-e46peaa.na14.le.salesforce.com"});
-    } else {
-        data.personalizations[0].bcc = [{
-            "email": "open-growth-activity@pubnub.com" }, {
-            "email": "emailtosalesforce@z0trcplsmwbjcm4gbvne2c1ufoaqx9h0vijs8ai21c5d7sqn1.d-e46peaa.na14.le.salesforce.com"
-        }];
-    }
 
     //add content if not using a template on sendgrid
     if ( request.message ) {
         data.content = [ { "type" : "text/html", "value" : request.message } ];
         delete data.personalizations.substitutions;
         delete data.template_id;
+    }
+
+    if ( request.subject ) {
+        data.subject = request.subject;
     }
 
     let sendgridRequest = {
@@ -64,9 +57,17 @@ opengrowth.delight.sendgrid.email = ( request ) => {
 
     // post email
     return xhr.fetch( apiurl, sendgridRequest ).then( (res) => {
-        console.log( 'SendGrid Response: ' + JSON.stringify(res));
-    })
-    .catch( err => {
-        console.log( "SendGrid Error:\n" + err );
+        if (res.status < 200 || res.status > 300) {
+            // The response code is an error
+            console.log("SendGrid Error:\n", res);
+            opengrowth.log("sendgrid.email", "xhr", res, true);
+        } else {
+            // The response code is 2xx ok
+            //console.log( "SendGrid Response:\n" + JSON.stringify(res));
+            opengrowth.log("sendgrid.email", "xhr", res.status);
+        }
+    }).catch( err => {
+        console.log("SendGrid Error:\n", err);
+        opengrowth.log("sendgrid.email", "xhr", err, true);
     } );
 };
