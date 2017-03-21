@@ -10,6 +10,9 @@ opengrowth.signals.realtime_analytics = ( request, customer ) => {
     let firstName    = opengrowth.customer.getFirstName(customer);
     let lastName     = opengrowth.customer.getLastName(customer);
     let company_name = opengrowth.customer.getCompany(customer);
+    var display_url  = `https://admin.pubnub.com/#/` + 
+      `user/${user.user_id}/account/${user.account_id}` +
+      `/app/${user.app_id}/key/${user.key_id}/`;
 
     var template_data = {
         "customer_first_name" : firstName
@@ -21,8 +24,9 @@ opengrowth.signals.realtime_analytics = ( request, customer ) => {
       , "csm_phone"           : csm.phone
       , "csm_sf_bcc"          : csm_bccs
       , "app_name"            : user.app_name
+      , "display_url"         : display_url
     };
-
+    
     var sendWithUsPostBody = {
       "template": opengrowth.keys.swu.templates.enable_realtime_analytics,
       "recipient": {
